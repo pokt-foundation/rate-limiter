@@ -1,0 +1,20 @@
+[
+    {
+        "Count": {
+            "Success": 1888527,
+            "Failure": 103011
+        },
+        "From": "2022-08-12T00:00:00Z",
+        "To": "2022-08-13T00:00:00Z",
+        "Application": "f4902e71f54290b3fc88022df98fd0423823df6d24af19031a1b319d44e3ed3a"
+    },
+    {
+        "Count": {
+            "Success": 1888527,
+            "Failure": 103011
+        },
+        "From": "2022-08-12T00:00:00Z",
+        "To": "2022-08-13T00:00:00Z",
+        "Application": "69681e9b309b355e75b1f368062197154e28a9ccc2997538dadae2a9fe03de52"
+    }
+]
