@@ -44,5 +44,7 @@ func (c *Client) GetWithURLAndParams(rawURL string, params url.Values, headers h
 		return nil, err
 	}
 
+	urlStruct.RawQuery = params.Encode()
+
 	return c.Get(urlStruct.String(), headers)
 }

@@ -26,7 +26,8 @@ var (
 	relayMeterURL = environment.GetString("RELAY_METER_URL", "https://test-meter.com")
 	httpDBAPIKey  = environment.GetString("HTTP_DB_API_KEY", "")
 
-	errUnexpectedStatusCode = errors.New("unexpected status code")
+	errUnexpectedStatusCodeInLimits = errors.New("unexpected status code in limits")
+	errUnexpectedStatusCodeInRelays = errors.New("unexpected status code in relays")
 
 	zeroTimeString = "T00:00:00Z"
 )
@@ -63,7 +64,7 @@ func (c *Cache) getAppLimits() (map[string]repository.AppLimits, error) {
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return nil, errUnexpectedStatusCode
+		return nil, errUnexpectedStatusCodeInLimits
 	}
 
 	bodyBytes, err := ioutil.ReadAll(response.Body)
@@ -102,7 +103,7 @@ type AppRelaysResponse struct {
 }
 
 func (c *Cache) getRelaysCount() ([]AppRelaysResponse, error) {
-	todayZeroDate := fmt.Sprintf("%s%s", time.Now().Format("2017-09-07"), zeroTimeString)
+	todayZeroDate := fmt.Sprintf("%s%s", time.Now().Format("2006-01-02"), zeroTimeString)
 
 	params := url.Values{}
 
@@ -117,7 +118,7 @@ func (c *Cache) getRelaysCount() ([]AppRelaysResponse, error) {
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return nil, errUnexpectedStatusCode
+		return nil, errUnexpectedStatusCodeInRelays
 	}
 
 	bodyBytes, err := ioutil.ReadAll(response.Body)
