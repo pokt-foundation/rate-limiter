@@ -35,6 +35,8 @@ var (
 type Cache struct {
 	client            *client.Client
 	mutex             sync.Mutex
+	AppLimits         map[string]repository.AppLimits
+	RelaysCount       []AppRelaysResponse
 	appIDsPassedLimit []string
 }
 
@@ -164,6 +166,8 @@ func (c *Cache) SetCache() error {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
+	c.AppLimits = appLimits
+	c.RelaysCount = relaysCount
 	c.appIDsPassedLimit = appIDsPassedLimit
 
 	return nil
