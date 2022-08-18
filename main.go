@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pokt-foundation/rate-limiter/client"
-	"github.com/pokt-foundation/rate-limiter/environment"
 	"github.com/pokt-foundation/rate-limiter/router"
+	"github.com/pokt-foundation/utils-go/client"
+	"github.com/pokt-foundation/utils-go/environment"
 )
 
 var (
@@ -38,7 +38,7 @@ func httpHandler(router *router.Router) {
 }
 
 func main() {
-	client := client.NewClient(int(retries), time.Duration(timeout)*time.Second)
+	client := client.NewCustomClient(int(retries), time.Duration(timeout)*time.Second)
 
 	router, err := router.NewRouter(client)
 	if err != nil {

@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/jarcoal/httpmock"
-	"github.com/pokt-foundation/pocket-go/mock-client"
-	"github.com/pokt-foundation/rate-limiter/client"
+	"github.com/pokt-foundation/utils-go/client"
+	"github.com/pokt-foundation/utils-go/mock-client"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,7 +24,7 @@ func TestCache_SetCache(t *testing.T) {
 	mock.AddMockedResponseFromFile(http.MethodGet, fmt.Sprintf("%s%s", relayMeterURL, appRelayMeterEndpoint),
 		http.StatusOK, "../samples/apps_relays.json")
 
-	client := client.NewClient(0, 5*time.Second)
+	client := client.NewCustomClient(0, 5*time.Second)
 
 	cache := NewCache(client)
 
@@ -40,7 +40,7 @@ func TestCache_SetCacheFailure(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	client := client.NewClient(0, 5*time.Second)
+	client := client.NewCustomClient(0, 5*time.Second)
 
 	cache := NewCache(client)
 

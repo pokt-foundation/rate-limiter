@@ -1,12 +1,12 @@
 package router
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/pokt-foundation/rate-limiter/cache"
-	"github.com/pokt-foundation/rate-limiter/client"
+	"github.com/pokt-foundation/utils-go/client"
+	jsonresponse "github.com/pokt-foundation/utils-go/json-response"
 )
 
 // Router struct handler for router requests
@@ -34,17 +34,6 @@ func NewRouter(client *client.Client) (*Router, error) {
 	return rt, nil
 }
 
-func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
-	response, _ := json.Marshal(payload)
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	_, err := w.Write(response)
-	if err != nil {
-		panic(err)
-	}
-}
-
 func (rt *Router) HealthCheck(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	_, err := w.Write([]byte("Rate Limiter is up and running!"))
@@ -54,5 +43,5 @@ func (rt *Router) HealthCheck(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rt *Router) GetAppIDs(w http.ResponseWriter, r *http.Request) {
-	respondWithJSON(w, http.StatusOK, rt.Cache.GetAppIDsPassedLimit())
+	jsonresponse.RespondWithJSON(w, http.StatusOK, rt.Cache.GetAppIDsPassedLimit())
 }
