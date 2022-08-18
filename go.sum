@@ -8,10 +8,11 @@ github.com/gojektech/valkyrie v0.0.0-20190210220504-8f62c1e7ba45/go.mod h1:tDYRk
 github.com/google/go-cmp v0.5.8 h1:e6P7q2lk1O+qJJb4BtCQXlK8vWEO8V1ZeuEdJNOqZyg=
 github.com/gorilla/mux v1.8.0 h1:i40aqfkR1h2SlN9hojwV5ZA91wcXFOvkdNIeFDP5koI=
 github.com/gorilla/mux v1.8.0/go.mod h1:DVbg23sWSpFRCP0SfiEN6jmj59UnW/n46BH5rLB71So=
-github.com/jarcoal/httpmock v1.1.0 h1:F47ChZj1Y2zFsCXxNkBPwNNKnAyOATcdQibk0qEdVCE=
-github.com/jarcoal/httpmock v1.1.0/go.mod h1:ATjnClrvW/3tijVmpL/va5Z3aAyGvqU3gCT8nX0Txik=
+github.com/jarcoal/httpmock v1.2.0 h1:gSvTxxFR/MEMfsGrvRbdfpRUMBStovlSRLw0Ep1bwwc=
+github.com/jarcoal/httpmock v1.2.0/go.mod h1:oCoTsnAz4+UoOUIf5lJOWV2QQIW5UoeUI6aM2YnWAZk=
 github.com/joho/godotenv v1.4.0 h1:3l4+N6zfMWnkbPEXKng2o2/MR5mSwTrBih4ZEkkz1lg=
 github.com/joho/godotenv v1.4.0/go.mod h1:f4LDr5Voq0i2e/R5DDNOoa2zzDfwtkZa6DnEwAbqwq4=
+github.com/maxatome/go-testdeep v1.11.0 h1:Tgh5efyCYyJFGUYiT0qxBSIDeXw0F5zSoatlou685kk=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
@@ -20,6 +21,8 @@ github.com/pokt-foundation/pocket-go v0.10.4 h1:gnaaOUKMcjZHFNomu02v0lzy9ssWfIqJ
 github.com/pokt-foundation/pocket-go v0.10.4/go.mod h1:3gp7HJe38NEcqD9i5cU7+BGIGZW6XgG/uPzXDfTpEDA=
 github.com/pokt-foundation/portal-api-go v0.2.2 h1:qHscdOQR6ulYm1st8rpYPFlCO1dGFTuMrwWWWYBEhg0=
 github.com/pokt-foundation/portal-api-go v0.2.2/go.mod h1:7T8GJ+dpbo39i+3nuNhByJLD3LfvgwCdzZjseKBeH/g=
+github.com/pokt-foundation/utils-go v0.2.0 h1:q74w0fq/VNl109KsfMaHEq0ugqX/iPueyPwNz+ldSYY=
+github.com/pokt-foundation/utils-go v0.2.0/go.mod h1:c92FV9S9qY4PEyeOv4fGkI9FTZSv8oh1MiARGC+BC2E=
 github.com/sirupsen/logrus v1.9.0 h1:trlNQbNUG3OdDrDil03MCb1H2o9nJ1x4/5LYw7byDE0=
 github.com/sirupsen/logrus v1.9.0/go.mod h1:naHLuLoDiP4jHNo9R0sCBMtWGeIprob74mVsIT4qYEQ=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

@@ -10,7 +10,7 @@ import (
 
 	"github.com/pokt-foundation/portal-api-go/repository"
 	"github.com/pokt-foundation/rate-limiter/cache"
-	"github.com/pokt-foundation/rate-limiter/environment"
+	"github.com/pokt-foundation/utils-go/environment"
 )
 
 const (

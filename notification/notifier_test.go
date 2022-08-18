@@ -3,13 +3,12 @@ package notification
 import (
 	"net/http"
 	"testing"
-	"time"
 
 	"github.com/jarcoal/httpmock"
 	"github.com/pokt-foundation/pocket-go/mock-client"
 	"github.com/pokt-foundation/portal-api-go/repository"
 	"github.com/pokt-foundation/rate-limiter/cache"
-	"github.com/pokt-foundation/rate-limiter/client"
+	"github.com/pokt-foundation/utils-go/client"
 	"github.com/stretchr/testify/require"
 )
 
@@ -19,7 +18,7 @@ func newTestNotifier() *Notifier {
 	mock.AddMockedResponseFromFile(http.MethodGet, "https://test-meter.com/v0/relays/apps",
 		http.StatusOK, "../samples/apps_relays.json")
 
-	client := client.NewClient(0, 5*time.Second)
+	client := client.NewDefaultClient()
 	cache := cache.NewCache(client)
 	cache.SetCache()
 
