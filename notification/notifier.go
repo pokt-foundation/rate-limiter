@@ -17,6 +17,12 @@ const (
 	auth0UsersEndpoint    = "api/v2/users"
 	auth0TokenEndpoint    = "oauth/token"
 	auth0AudienceEndpoint = "api/v2/"
+
+	Full          NotificationThreshold = "Full"
+	ThreeQuarters NotificationThreshold = "ThreeQuarters"
+	Half          NotificationThreshold = "Half"
+	Quarter       NotificationThreshold = "Quarter"
+	None          NotificationThreshold = "None"
 )
 
 var (
@@ -36,11 +42,11 @@ type (
 	}
 
 	AppUsage struct {
-		Email                string
-		Name                 string
-		Limit                int
-		Usage                int
-		NotificationSettings repository.NotificationSettings
+		Email     string
+		Name      string
+		Limit     int
+		Usage     int
+		Threshold NotificationThreshold
 	}
 
 	Auth0Token struct {
@@ -49,6 +55,8 @@ type (
 	Auth0User struct {
 		Email string `json:"email,omitempty"`
 	}
+
+	NotificationThreshold string
 )
 
 func NewNotifier(cache *cache.Cache) *Notifier {
@@ -65,7 +73,7 @@ func (n *Notifier) getAuth0MgmtToken() (string, error) {
 	)
 	headers := http.Header{"content-type": {"application/x-www-form-urlencoded"}}
 
-	response, err := n.cache.Client.PostWithURLAndParams(auth0Url, reqBody, url.Values{}, headers)
+	response, err := n.cache.Client.PostWithURLJSONParams(auth0Url, reqBody, headers)
 	if err != nil {
 		return "", err
 	}
@@ -145,14 +153,38 @@ func (n *Notifier) createUsageMap() (map[string]AppUsage, error) {
 			continue
 		}
 
+		threshold := getAppThreshold(appUsage, appDetails.DailyLimit, *appDetails.NotificationSettings)
+
 		usageMap[appPubKey] = AppUsage{
-			Usage:                appUsage,
-			Limit:                appDetails.DailyLimit,
-			Email:                auth0UserEmail,
-			Name:                 appDetails.AppName,
-			NotificationSettings: *appDetails.NotificationSettings,
+			Usage:     appUsage,
+			Limit:     appDetails.DailyLimit,
+			Email:     auth0UserEmail,
+			Name:      appDetails.AppName,
+			Threshold: threshold,
 		}
 	}
 
 	return usageMap, nil
+}
+
+func getAppThreshold(usage int, limit int, notificationSettings repository.NotificationSettings) NotificationThreshold {
+	usageFloat, limitFloat := float64(usage), float64(limit)
+
+	if limit == 0 {
+		return None
+	}
+	if notificationSettings.Full && usageFloat >= limitFloat {
+		return Full
+	}
+	if notificationSettings.ThreeQuarters && usageFloat >= limitFloat*0.75 {
+		return ThreeQuarters
+	}
+	if notificationSettings.Half && usageFloat >= limitFloat*0.5 {
+		return Half
+	}
+	if notificationSettings.Quarter && usageFloat >= limitFloat*0.25 {
+		return Quarter
+	}
+
+	return None
 }
