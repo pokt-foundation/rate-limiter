@@ -3,6 +3,7 @@ package client
 import (
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/gojektech/heimdall"
@@ -47,4 +48,17 @@ func (c *Client) GetWithURLAndParams(rawURL string, params url.Values, headers h
 	urlStruct.RawQuery = params.Encode()
 
 	return c.Get(urlStruct.String(), headers)
+}
+
+// PostWithURLAndParams does get request with url values as params
+func (c *Client) PostWithURLAndParams(rawURL string, body string, params url.Values, headers http.Header) (*http.Response, error) {
+	urlStruct, err := url.Parse(rawURL)
+	if err != nil {
+		return nil, err
+	}
+
+	bodyReader := strings.NewReader(body)
+	urlStruct.RawQuery = params.Encode()
+
+	return c.Post(urlStruct.String(), bodyReader, headers)
 }

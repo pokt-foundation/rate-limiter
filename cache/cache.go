@@ -33,7 +33,7 @@ var (
 )
 
 type Cache struct {
-	client            *client.Client
+	Client            *client.Client
 	mutex             sync.Mutex
 	AppLimits         map[string]repository.AppLimits
 	RelaysCount       []AppRelaysResponse
@@ -42,7 +42,7 @@ type Cache struct {
 
 func NewCache(client *client.Client) *Cache {
 	return &Cache{
-		client: client,
+		Client: client,
 	}
 }
 
@@ -58,7 +58,7 @@ func (c *Cache) getAppLimits() (map[string]repository.AppLimits, error) {
 
 	header.Add("Authorization", httpDBAPIKey)
 
-	response, err := c.client.GetWithURLAndParams(fmt.Sprintf("%s%s", httpDBURL, appLimitsEndpoint), nil, header)
+	response, err := c.Client.GetWithURLAndParams(fmt.Sprintf("%s%s", httpDBURL, appLimitsEndpoint), nil, header)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func (c *Cache) getRelaysCount() ([]AppRelaysResponse, error) {
 	params.Set("from", todayZeroDate)
 	params.Set("to", todayZeroDate)
 
-	response, err := c.client.GetWithURLAndParams(fmt.Sprintf("%s%s", relayMeterURL, appRelayMeterEndpoint), params, http.Header{})
+	response, err := c.Client.GetWithURLAndParams(fmt.Sprintf("%s%s", relayMeterURL, appRelayMeterEndpoint), params, http.Header{})
 	if err != nil {
 		return nil, err
 	}
