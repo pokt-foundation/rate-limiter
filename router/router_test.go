@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/jarcoal/httpmock"
-	"github.com/pokt-foundation/pocket-go/mock-client"
-	"github.com/pokt-foundation/rate-limiter/client"
+	"github.com/pokt-foundation/utils-go/client"
+	"github.com/pokt-foundation/utils-go/mock-client"
 	"github.com/stretchr/testify/require"
 )
 
@@ -23,7 +23,7 @@ func newTestRouter() (*Router, error) {
 	mock.AddMockedResponseFromFile(http.MethodGet, "https://test-meter.com/v0/relays/apps",
 		http.StatusOK, "../samples/apps_relays.json")
 
-	return NewRouter(client.NewClient(0, 5*time.Second))
+	return NewRouter(client.NewCustomClient(0, 5*time.Second))
 }
 
 func TestRouter_HealthCheck(t *testing.T) {
