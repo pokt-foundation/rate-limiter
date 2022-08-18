@@ -36,11 +36,11 @@ type (
 	}
 
 	AppUsage struct {
-		email                string
-		name                 string
-		limit                int
-		usage                int
-		notificationSettings repository.NotificationSettings
+		Email                string
+		Name                 string
+		Limit                int
+		Usage                int
+		NotificationSettings repository.NotificationSettings
 	}
 
 	Auth0Token struct {
@@ -116,7 +116,7 @@ func (n *Notifier) getAuth0UserEmail(userID string, token string) (string, error
 		return "", err
 	}
 
-	if len(auth0Users) > 0 {
+	if len(auth0Users) > 0 && auth0Users[0].Email != "" {
 		userEmail := auth0Users[0].Email
 		return userEmail, nil
 	} else {
@@ -124,24 +124,35 @@ func (n *Notifier) getAuth0UserEmail(userID string, token string) (string, error
 	}
 }
 
-// TODO - Func below
-// func (n *Notifier) createUsageMap() {
-// 	appLimits := n.cache.AppLimits
-// 	relaysCount := n.cache.RelaysCount
+func (n *Notifier) createUsageMap() (map[string]AppUsage, error) {
+	appLimits, relaysCount := n.cache.AppLimits, n.cache.RelaysCount
 
-// 	usageMap := make(map[string]AppUsage, len(relaysCount))
+	usageMap := make(map[string]AppUsage, len(relaysCount))
 
-// 	for _, app := range relaysCount {
-// 		appPubKey := app.Application
-// 		appDetails := appLimits[appPubKey]
+	auth0Token, err := n.getAuth0MgmtToken()
+	if err != nil {
+		return nil, err
+	}
 
-// 		usageMap[appPubKey] = AppUsage{
-// 			usage:                int(app.Count.Failure + app.Count.Success),
-// 			limit:                appDetails.DailyLimit,
-// 			email:                appDetails.App,
-// 			name:                 appDetails.AppName,
-// 			notificationSettings: appDetails.NotificationSettings,
-// 		}
+	for _, app := range relaysCount {
+		appPubKey := app.Application
+		appUsage := int(app.Count.Failure + app.Count.Success)
+		appDetails := appLimits[appPubKey]
 
-// 	}
-// }
+		auth0UserEmail, err := n.getAuth0UserEmail(appDetails.AppUserID, auth0Token)
+		if err != nil {
+			// TODO Log error getting user email
+			continue
+		}
+
+		usageMap[appPubKey] = AppUsage{
+			Usage:                appUsage,
+			Limit:                appDetails.DailyLimit,
+			Email:                auth0UserEmail,
+			Name:                 appDetails.AppName,
+			NotificationSettings: *appDetails.NotificationSettings,
+		}
+	}
+
+	return usageMap, nil
+}
