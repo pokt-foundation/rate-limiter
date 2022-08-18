@@ -1,12 +1,32 @@
 [
-    {
-        "appID": "62c263ac578dfa0039923bb9",
-        "publicKey": "f4902e71f54290b3fc88022df98fd0423823df6d24af19031a1b319d44e3ed3a",
-        "dailyLimit": 0
-    },
-    {
-        "appID": "62c267ea578dfa0039924a6b",
-        "publicKey": "69681e9b309b355e75b1f368062197154e28a9ccc2997538dadae2a9fe03de52",
-        "dailyLimit": 250000
+  {
+    "appID": "62c263ac578dfa0039923bb9",
+    "publicKey": "f4902e71f54290b3fc88022df98fd0423823df6d24af19031a1b319d44e3ed3a",
+    "dailyLimit": 0,
+    "appName": "Test App 123",
+    "appUserID": "userid123",
+    "planType": "free-plan",
+    "notificationSettings": {
+      "signedUp": true,
+      "quarter": false,
+      "half": true,
+      "threeQuarters": false,
+      "full": true
     }
+  },
+  {
+    "appID": "62c267ea578dfa0039924a6b",
+    "publicKey": "69681e9b309b355e75b1f368062197154e28a9ccc2997538dadae2a9fe03de52",
+    "dailyLimit": 250000,
+    "appName": "Test App 456",
+    "appUserID": "userid456",
+    "planType": "paid-plan",
+    "notificationSettings": {
+      "signedUp": true,
+      "quarter": false,
+      "half": true,
+      "threeQuarters": false,
+      "full": true
+    }
+  }
 ]
