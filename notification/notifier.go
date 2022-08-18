@@ -34,10 +34,6 @@ type (
 	Notifier struct {
 		cache *cache.Cache
 	}
-	notifier interface {
-		getAuth0MgmtToken() (string, error)
-		getAuth0UserEmail(userID string, token string) (string, error)
-	}
 
 	AppUsage struct {
 		email                string
