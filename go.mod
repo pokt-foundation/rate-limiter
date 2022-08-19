@@ -7,7 +7,7 @@ require (
 	github.com/jarcoal/httpmock v1.2.0
 	github.com/mailgun/mailgun-go/v4 v4.8.1
 	github.com/pokt-foundation/pocket-go v0.10.4
-	github.com/pokt-foundation/portal-api-go v0.2.2
+	github.com/pokt-foundation/portal-api-go v0.2.3
 	github.com/pokt-foundation/utils-go v0.2.0
 	github.com/stretchr/testify v1.8.0
 )
