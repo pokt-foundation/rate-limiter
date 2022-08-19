@@ -5,10 +5,10 @@ import (
 	"testing"
 
 	"github.com/jarcoal/httpmock"
-	"github.com/pokt-foundation/pocket-go/mock-client"
 	"github.com/pokt-foundation/portal-api-go/repository"
 	"github.com/pokt-foundation/rate-limiter/cache"
 	"github.com/pokt-foundation/utils-go/client"
+	"github.com/pokt-foundation/utils-go/mock-client"
 	"github.com/stretchr/testify/require"
 )
 
