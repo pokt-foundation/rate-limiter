@@ -42,16 +42,16 @@ func TestNotifier_createUsageMap(t *testing.T) {
 	usageMap, err := notifier.createUsageMap()
 	c.NoError(err)
 
-	testApp := usageMap["69681e9b309b355e75b1f368062197154e28a9ccc2997538dadae2a9fe03de52"]
+	testApp := usageMap["62c267ea578dfa0039924a6b"]
 	c.Equal("test@pokt.network", testApp.Email)
 	c.Equal(182538, testApp.Usage)
 	c.Equal(250000, testApp.Limit)
 	c.Equal("test@pokt.network", testApp.Email)
 	c.Equal(Half, testApp.Threshold)
-	c.Equal(1, len(usageMap))
+	c.Equal(2, len(usageMap))
 
 	/* Should not add app to usage map if it has no threshold exceeded (threshold == 0) */
-	testApp = usageMap["f4902e71f54290b3fc88022df98fd0423823df6d24af19031a1b319d44e3ed3a"]
+	testApp = usageMap["62c263ac578dfa0039923bb9"]
 	c.Equal(AppUsage{}, testApp)
 
 	/* Should throw an error if the Auth0 token fetch fails */

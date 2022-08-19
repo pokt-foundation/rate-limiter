@@ -5,6 +5,21 @@
     "dailyLimit": 0,
     "appName": "Test App 123",
     "appUserID": "userid123",
+    "planType": "paid-plan",
+    "notificationSettings": {
+      "signedUp": true,
+      "quarter": false,
+      "half": true,
+      "threeQuarters": false,
+      "full": true
+    }
+  },
+  {
+    "appID": "62c267ea67g6fhns53gdn2sg",
+    "publicKey": "4e28a9ccc2997538dadae2a9fe03de52e9b309b355e75b1f368062frsf4nsctv",
+    "dailyLimit": 250000,
+    "appName": "Test App 456",
+    "appUserID": "userid456",
     "planType": "free-plan",
     "notificationSettings": {
       "signedUp": true,
@@ -18,9 +33,9 @@
     "appID": "62c267ea578dfa0039924a6b",
     "publicKey": "69681e9b309b355e75b1f368062197154e28a9ccc2997538dadae2a9fe03de52",
     "dailyLimit": 250000,
-    "appName": "Test App 456",
-    "appUserID": "userid456",
-    "planType": "paid-plan",
+    "appName": "Test App 789",
+    "appUserID": "userid789",
+    "planType": "free-plan",
     "notificationSettings": {
       "signedUp": true,
       "quarter": false,
