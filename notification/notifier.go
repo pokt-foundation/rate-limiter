@@ -66,6 +66,7 @@ type (
 // Main func called on a set interval to run the notification worker.
 // Creates a map of all used applications above a notification threshold and send emails to them.
 func HandleNotifications(cache *cache.Cache) error {
+	cache.SetCache()
 	notifier := newNotifier(cache)
 
 	usageMap, err := notifier.createUsageMap()

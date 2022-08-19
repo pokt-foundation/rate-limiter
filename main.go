@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/go-co-op/gocron"
+	"github.com/pokt-foundation/rate-limiter/cache"
 	"github.com/pokt-foundation/rate-limiter/notification"
 	"github.com/pokt-foundation/rate-limiter/router"
 	"github.com/pokt-foundation/utils-go/client"
@@ -31,9 +32,9 @@ func cacheHandler(router *router.Router, scheduler *gocron.Scheduler) {
 	})
 }
 
-func notifierHandler(router *router.Router, scheduler *gocron.Scheduler) {
+func notifierHandler(cache *cache.Cache, scheduler *gocron.Scheduler) {
 	scheduler.Every(notifierInterval).Minutes().Tag("notifier").Do(func() {
-		err := notification.HandleNotifications(router.Cache)
+		err := notification.HandleNotifications(cache)
 		if err != nil {
 			fmt.Printf("Notifier failed with error: %s", err.Error())
 		}
@@ -63,7 +64,7 @@ func main() {
 
 	go httpHandler(router)
 	go cacheHandler(router, scheduler)
-	go notifierHandler(router, scheduler)
+	go notifierHandler(router.Cache, scheduler)
 
 	scheduler.StartAsync()
 
