@@ -32,7 +32,7 @@ func cacheHandler(router *router.Router, scheduler *gocron.Scheduler) {
 }
 
 func notifierHandler(router *router.Router, scheduler *gocron.Scheduler) {
-	scheduler.Every(notifierInterval).Minutes().Do(func() {
+	scheduler.Every(notifierInterval).Minutes().Tag("notifier").Do(func() {
 		err := notification.HandleNotifications(router.Cache)
 		if err != nil {
 			fmt.Printf("Notifier failed with error: %s", err.Error())
