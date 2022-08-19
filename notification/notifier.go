@@ -101,17 +101,11 @@ func (n *Notifier) createUsageMap() (map[string]AppUsage, error) {
 	}
 
 	for _, app := range relaysCount {
-		appPubKey := app.Application
+		appDetails := appLimits[app.Application]
 		appUsage := int(app.Count.Failure + app.Count.Success)
-		appDetails := appLimits[appPubKey]
+
 		if reflect.DeepEqual(appDetails, repository.AppLimits{}) {
 			// TODO Add logger with info about missing AppLimits details
-			continue
-		}
-
-		auth0UserEmail, err := n.getAuth0UserEmail(appDetails.AppUserID, auth0Token)
-		if err != nil {
-			// TODO Add logger with info about missing Auth0 user
 			continue
 		}
 
@@ -124,6 +118,12 @@ func (n *Notifier) createUsageMap() (map[string]AppUsage, error) {
 		// TODO Only add app usage to map if >= threshold not already present in cache for app ID.
 		// (ie. daily email wasn't already sent for this app for a equal or lesser threshold).
 		if appUsage > 0 && threshold != None {
+			auth0UserEmail, err := n.getAuth0UserEmail(appDetails.AppUserID, auth0Token)
+			if err != nil {
+				// TODO Add logger with info about missing Auth0 user
+				continue
+			}
+
 			usageMap[appDetails.AppID] = AppUsage{
 				Usage:     appUsage,
 				Limit:     appDetails.DailyLimit,
