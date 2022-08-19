@@ -22,7 +22,55 @@ func newTestNotifier() *Notifier {
 	cache := cache.NewCache(client)
 	cache.SetCache()
 
-	return NewNotifier(cache)
+	return newNotifier(cache)
+}
+
+func TestNotifier_createUsageMap(t *testing.T) {
+	c := require.New(t)
+
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	/* Should succesfully create usage map if no errors occur */
+	httpmock.RegisterResponder(http.MethodPost, "https://test-auth0.com/oauth/token",
+		httpmock.NewStringResponder(http.StatusOK, `{"access_token": "example-auth0-management-token"}`))
+	httpmock.RegisterResponder(http.MethodGet, "https://test-auth0.com/api/v2/users",
+		httpmock.NewStringResponder(http.StatusOK, `[{"email": "test@pokt.network"}]`))
+
+	notifier := newTestNotifier()
+
+	usageMap, err := notifier.createUsageMap()
+	c.NoError(err)
+
+	testApp := usageMap["69681e9b309b355e75b1f368062197154e28a9ccc2997538dadae2a9fe03de52"]
+	c.Equal("test@pokt.network", testApp.Email)
+	c.Equal(182538, testApp.Usage)
+	c.Equal(250000, testApp.Limit)
+	c.Equal("test@pokt.network", testApp.Email)
+	c.Equal(Half, testApp.Threshold)
+	c.Equal(1, len(usageMap))
+
+	/* Should not add app to usage map if it has no threshold exceeded (threshold == 0) */
+	testApp = usageMap["f4902e71f54290b3fc88022df98fd0423823df6d24af19031a1b319d44e3ed3a"]
+	c.Equal(AppUsage{}, testApp)
+
+	/* Should throw an error if the Auth0 token fetch fails */
+	httpmock.RegisterResponder(http.MethodPost, "https://test-auth0.com/oauth/token",
+		httpmock.NewStringResponder(http.StatusBadRequest, ""))
+
+	_, err = notifier.createUsageMap()
+	c.Error(err)
+
+	/* Should not throw an error if the Auth0 user fetch fails but will not map failed users to the usage map */
+	httpmock.RegisterResponder(http.MethodPost, "https://test-auth0.com/oauth/token",
+		httpmock.NewStringResponder(http.StatusOK, `{"access_token": "example-auth0-management-token"}`))
+	httpmock.RegisterResponder(http.MethodGet, "https://test-auth0.com/api/v2/users",
+		httpmock.NewStringResponder(http.StatusBadRequest, `[]`))
+
+	usageMapWithUserFailure, err := notifier.createUsageMap()
+
+	c.NoError(err)
+	c.Equal(0, len(usageMapWithUserFailure))
 }
 
 func TestNotifier_getAuth0MgmtToken(t *testing.T) {
@@ -72,50 +120,6 @@ func TestNotifier_getAuth0UserEmail(t *testing.T) {
 	_, err = notifier.getAuth0UserEmail("test-user-id", "example-auth0-management-token")
 
 	c.Error(err)
-}
-
-func TestNotifier_createUsageMap(t *testing.T) {
-	c := require.New(t)
-
-	httpmock.Activate()
-	defer httpmock.DeactivateAndReset()
-
-	/* Should succesfully create usage map if no errors occur */
-	httpmock.RegisterResponder(http.MethodPost, "https://test-auth0.com/oauth/token",
-		httpmock.NewStringResponder(http.StatusOK, `{"access_token": "example-auth0-management-token"}`))
-	httpmock.RegisterResponder(http.MethodGet, "https://test-auth0.com/api/v2/users",
-		httpmock.NewStringResponder(http.StatusOK, `[{"email": "test@pokt.network"}]`))
-
-	notifier := newTestNotifier()
-
-	usageMap, err := notifier.createUsageMap()
-	c.NoError(err)
-
-	testApp := usageMap["f4902e71f54290b3fc88022df98fd0423823df6d24af19031a1b319d44e3ed3a"]
-	c.Equal("test@pokt.network", testApp.Email)
-	c.Equal(1991538, testApp.Usage)
-	c.Equal(0, testApp.Limit)
-	c.Equal("test@pokt.network", testApp.Email)
-	c.Equal(None, testApp.Threshold)
-	c.Equal(2, len(usageMap))
-
-	/* Should throw an error if the Auth0 token fetch fails */
-	httpmock.RegisterResponder(http.MethodPost, "https://test-auth0.com/oauth/token",
-		httpmock.NewStringResponder(http.StatusBadRequest, ""))
-
-	_, err = notifier.createUsageMap()
-	c.Error(err)
-
-	/* Should not throw an error if the Auth0 user fetch fails but will not map failed users to the usage map */
-	httpmock.RegisterResponder(http.MethodPost, "https://test-auth0.com/oauth/token",
-		httpmock.NewStringResponder(http.StatusOK, `{"access_token": "example-auth0-management-token"}`))
-	httpmock.RegisterResponder(http.MethodGet, "https://test-auth0.com/api/v2/users",
-		httpmock.NewStringResponder(http.StatusBadRequest, `[]`))
-
-	usageMapWithUserFailure, err := notifier.createUsageMap()
-
-	c.NoError(err)
-	c.Equal(0, len(usageMapWithUserFailure))
 }
 
 func TestNotifier_getAppThreshold(t *testing.T) {
