@@ -20,13 +20,17 @@ var (
 	cacheRefresh = environment.GetInt64("CACHE_REFRESH", 10)
 )
 
-func cacheHandler(router *router.Router, scheduler *gocron.Scheduler) {
-	scheduler.Every(cacheRefresh).Minutes().Tag("cache-refresh").Do(func() {
+func cacheHandler(router *router.Router) {
+	scheduler := gocron.NewScheduler(time.UTC)
+
+	scheduler.Every(cacheRefresh).Minutes().Do(func() {
 		err := router.Cache.SetCache()
 		if err != nil {
 			fmt.Printf("Cache refresh failed with error: %s", err.Error())
 		}
 	})
+
+	scheduler.StartAsync()
 }
 
 func httpHandler(router *router.Router) {
@@ -44,16 +48,11 @@ func main() {
 		panic(err)
 	}
 
-	scheduler := gocron.NewScheduler(time.UTC)
-	scheduler.TagsUnique()
-
 	var wg sync.WaitGroup
 	wg.Add(1)
 
 	go httpHandler(router)
-	go cacheHandler(router, scheduler)
-
-	scheduler.StartAsync()
+	go cacheHandler(router)
 
 	wg.Wait()
 }
