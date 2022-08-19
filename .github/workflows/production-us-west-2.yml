@@ -1,0 +1,60 @@
+name: Production deployment us-west-2
+
+on:
+  push:
+    branches: [add-deployment-files]
+
+jobs:
+  deploy:
+    name: Rate limiter
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image-rate-limiter
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: rate-limiter
+          IMAGE_TAG: latest
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+      - name: Fill in the new image ID / us-west-2
+        id: task-def-us-west-2-rate-limiter
+        uses: aws-actions/amazon-ecs-render-task-definition@master
+        with:
+          task-definition: .aws/ecs-task-definition.json
+          container-name: rate-limiter
+          image: ${{ steps.build-image-rate-limiter.outputs.image }}
+          environment-variables: |
+            HTTP_DB_API_KEY=${{ secrets.HTTP_DB_API_KEY }}
+            HTTP_DB_URL=${{ secrets.HTTP_DB_URL }}
+            RELAY_METER_URL=${{ secrets.RELAY_METER_URL }}
+            HTTP_RETRIES=${{ secrets.HTTP_RETRIES }}
+            HTTP_TIMEOUT=${{ secrets.HTTP_TIMEOUT }}
+            PORT=${{ secrets.PORT }}
+            CACHE_REFRESH=${{ secrets.CACHE_REFRESH }}
+            
+      - name: Deploy / us-west-2
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def-us-west-2-rate-limiter.outputs.task-definition }}
+          service: rate-limiter
+          cluster: rate-limiter
+          wait-for-service-stability: true
