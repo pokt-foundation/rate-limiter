@@ -3,10 +3,9 @@ module github.com/pokt-foundation/rate-limiter
 go 1.18
 
 require (
+	github.com/go-co-op/gocron v1.16.2
 	github.com/gorilla/mux v1.8.0
 	github.com/jarcoal/httpmock v1.2.0
-	github.com/mailgun/mailgun-go/v4 v4.8.1
-	github.com/pokt-foundation/pocket-go v0.10.4
 	github.com/pokt-foundation/portal-api-go v0.2.3
 	github.com/pokt-foundation/utils-go v0.2.0
 	github.com/stretchr/testify v1.8.0
@@ -14,14 +13,10 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/go-co-op/gocron v1.16.2 // indirect
 	github.com/gojektech/heimdall v5.0.2+incompatible // indirect
 	github.com/gojektech/valkyrie v0.0.0-20190210220504-8f62c1e7ba45 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
-	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/kr/pretty v0.1.0 // indirect
-	github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 // indirect
-	github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
