@@ -7,6 +7,8 @@ github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 h1:JWuenKqqX8nojt
 github.com/facebookgo/stack v0.0.0-20160209184415-751773369052/go.mod h1:UbMTZqLaRiH3MsBH8va0n7s1pQYcu3uTb8G4tygF4Zg=
 github.com/facebookgo/subset v0.0.0-20150612182917-8dac2c3c4870 h1:E2s37DuLxFhQDg5gKsWoLBOB0n+ZW8s599zru8FJ2/Y=
 github.com/facebookgo/subset v0.0.0-20150612182917-8dac2c3c4870/go.mod h1:5tD+neXqOorC30/tWg0LCSkrqj/AR6gu8yY8/fpw1q0=
+github.com/go-co-op/gocron v1.16.2 h1:p9ghzsN5PqqPyWXYDO2JlvD1DOUNT8pPSyGYC62XBcY=
+github.com/go-co-op/gocron v1.16.2/go.mod h1:W/N9G7bntRo5fVQlmjncvqSt74jxCxHfjyHlgcB33T8=
 github.com/gojektech/heimdall v5.0.2+incompatible h1:mfGLnHNTKN7b1OMTO4ZvL3oT2P13kqTTV7owK7BZDck=
 github.com/gojektech/heimdall v5.0.2+incompatible/go.mod h1:8hRIZ3+Kz0r3GAFI9QrUuvZht8ypg5Rs8schCXioLOo=
 github.com/gojektech/valkyrie v0.0.0-20190210220504-8f62c1e7ba45 h1:MO2DsGCZz8phRhLnpFvHEQgTH521sVN/6F2GZTbNO3Q=
@@ -44,6 +46,8 @@ github.com/pokt-foundation/portal-api-go v0.2.3 h1:P9hJZiuU59C+Pmwf15oBWN4yZW8rS
 github.com/pokt-foundation/portal-api-go v0.2.3/go.mod h1:7T8GJ+dpbo39i+3nuNhByJLD3LfvgwCdzZjseKBeH/g=
 github.com/pokt-foundation/utils-go v0.2.0 h1:q74w0fq/VNl109KsfMaHEq0ugqX/iPueyPwNz+ldSYY=
 github.com/pokt-foundation/utils-go v0.2.0/go.mod h1:c92FV9S9qY4PEyeOv4fGkI9FTZSv8oh1MiARGC+BC2E=
+github.com/robfig/cron/v3 v3.0.1 h1:WdRxkvbJztn8LMz/QEvLN5sBU+xKpSqwwUO1Pjr4qDs=
+github.com/robfig/cron/v3 v3.0.1/go.mod h1:eQICP3HwyT7UooqI/z+Ov+PtYAWygg1TEWWzGIFLtro=
 github.com/sirupsen/logrus v1.9.0 h1:trlNQbNUG3OdDrDil03MCb1H2o9nJ1x4/5LYw7byDE0=
 github.com/sirupsen/logrus v1.9.0/go.mod h1:naHLuLoDiP4jHNo9R0sCBMtWGeIprob74mVsIT4qYEQ=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
@@ -53,6 +57,8 @@ github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/
 github.com/stretchr/testify v1.7.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.8.0 h1:pSgiaMZlXftHpm5L7V1+rVB+AZJydKsMxsQBIJw4PKk=
 github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO+kdMU+MU=
+golang.org/x/sync v0.0.0-20210220032951-036812b2e83c h1:5KslGYwFpkhGh+Q16bwMP3cOontH8FOep7tGV86Y7SQ=
+golang.org/x/sync v0.0.0-20210220032951-036812b2e83c/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab h1:2QkjZIsXupsJbJIdSjjUOgWK3aEtzyuh2mPt3l/CkeU=
 golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
