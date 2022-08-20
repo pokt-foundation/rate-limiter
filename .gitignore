@@ -16,3 +16,4 @@
 
 .env
 tmp/*
+.DS_STORE
