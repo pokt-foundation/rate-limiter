@@ -57,7 +57,7 @@ func TestRouter_GetAppIDs(t *testing.T) {
 
 	c.Equal(http.StatusOK, rr.Code)
 
-	expectedBody, err := json.Marshal([]string{"62c267ea578dfa0039924a6b"})
+	expectedBody, err := json.Marshal([]string{"62c267ea67g6fhns53gdn2sg"})
 	c.NoError(err)
 
 	c.Equal(expectedBody, rr.Body.Bytes())

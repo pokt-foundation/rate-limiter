@@ -31,7 +31,7 @@ func TestCache_SetCache(t *testing.T) {
 	err := cache.SetCache()
 	c.NoError(err)
 
-	c.Equal([]string{"62c267ea578dfa0039924a6b"}, cache.GetAppIDsPassedLimit())
+	c.Equal([]string{"62c267ea67g6fhns53gdn2sg"}, cache.GetAppIDsPassedLimit())
 }
 
 func TestCache_SetCacheFailure(t *testing.T) {

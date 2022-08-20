@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-co-op/gocron"
 	"github.com/pokt-foundation/rate-limiter/router"
 	"github.com/pokt-foundation/utils-go/client"
 	"github.com/pokt-foundation/utils-go/environment"
@@ -20,14 +21,16 @@ var (
 )
 
 func cacheHandler(router *router.Router) {
-	for {
-		time.Sleep(time.Duration(cacheRefresh) * time.Minute)
+	scheduler := gocron.NewScheduler(time.UTC)
 
+	scheduler.Every(cacheRefresh).Minutes().Do(func() {
 		err := router.Cache.SetCache()
 		if err != nil {
 			fmt.Printf("Cache refresh failed with error: %s", err.Error())
 		}
-	}
+	})
+
+	scheduler.StartAsync()
 }
 
 func httpHandler(router *router.Router) {
@@ -46,7 +49,6 @@ func main() {
 	}
 
 	var wg sync.WaitGroup
-
 	wg.Add(1)
 
 	go httpHandler(router)
