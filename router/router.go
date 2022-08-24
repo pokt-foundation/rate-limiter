@@ -42,6 +42,12 @@ func (rt *Router) HealthCheck(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type getAppIDsOutput struct {
+	ApplicationIDs []string `json:"applicationIDs"`
+}
+
 func (rt *Router) GetAppIDs(w http.ResponseWriter, r *http.Request) {
-	jsonresponse.RespondWithJSON(w, http.StatusOK, rt.Cache.GetAppIDsPassedLimit())
+	jsonresponse.RespondWithJSON(w, http.StatusOK, getAppIDsOutput{
+		ApplicationIDs: rt.Cache.GetAppIDsPassedLimit(),
+	})
 }
