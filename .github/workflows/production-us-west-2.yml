@@ -50,6 +50,7 @@ jobs:
             HTTP_TIMEOUT=${{ secrets.HTTP_TIMEOUT }}
             PORT=${{ secrets.PORT }}
             CACHE_REFRESH=${{ secrets.CACHE_REFRESH }}
+            API_KEYS=${{ secrets.API_KEYS }}
             
       - name: Deploy / us-west-2
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1

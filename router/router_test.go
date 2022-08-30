@@ -63,4 +63,12 @@ func TestRouter_GetAppIDs(t *testing.T) {
 	c.NoError(err)
 
 	c.Equal(expectedBody, rr.Body.Bytes())
+
+	req.Header.Set("Authorization", "wrong")
+
+	rr = httptest.NewRecorder()
+
+	router.Router.ServeHTTP(rr, req)
+
+	c.Equal(http.StatusUnauthorized, rr.Code)
 }
