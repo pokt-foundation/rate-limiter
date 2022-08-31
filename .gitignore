@@ -15,5 +15,11 @@
 # vendor/
 
 .env
+tmp
 tmp/*
-.DS_STORE
+*/tmp/*
+.DS_Store
+.vscode
+.vscode/*
+
+rate-limiter
