@@ -52,6 +52,7 @@
     "appName": "Test App 789",
     "appUserID": "userid789",
     "planType": "free-plan",
+    "firstDateSurpassed": "2002-09-13T22:01:48.563976Z",
     "notificationSettings": {
       "signedUp": true,
       "quarter": false,

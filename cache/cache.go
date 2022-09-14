@@ -193,7 +193,7 @@ func (c *Cache) SetCache() error {
 			continue
 		}
 
-		count := int(relayCount.Count.Failure + relayCount.Count.Success)
+		count := int(relayCount.Count.Success)
 
 		if passedLimit(count, appLimit.DailyLimit, appLimit.FirstDateSurpassed) {
 			appIDsPassedLimit = append(appIDsPassedLimit, appLimit.AppID)
