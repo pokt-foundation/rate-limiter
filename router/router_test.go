@@ -23,6 +23,9 @@ func newTestRouter() (*Router, error) {
 	mock.AddMockedResponseFromFile(http.MethodGet, "https://test-meter.com/v0/relays/apps",
 		http.StatusOK, "../samples/apps_relays.json")
 
+	mock.AddMockedResponse(http.MethodPost, "https://test-db.com/application/first_date_surpassed",
+		http.StatusOK, "ok")
+
 	return NewRouter(client.NewCustomClient(0, 5*time.Second))
 }
 

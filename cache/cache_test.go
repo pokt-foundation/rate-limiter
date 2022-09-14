@@ -24,6 +24,9 @@ func TestCache_SetCache(t *testing.T) {
 	mock.AddMockedResponseFromFile(http.MethodGet, fmt.Sprintf("%s%s", relayMeterURL, appRelayMeterEndpoint),
 		http.StatusOK, "../samples/apps_relays.json")
 
+	mock.AddMockedResponse(http.MethodPost, fmt.Sprintf("%s%s", httpDBURL, firstDateSurpassedEndpoint),
+		http.StatusOK, "ok")
+
 	client := client.NewCustomClient(0, 5*time.Second)
 
 	cache := NewCache(client)
@@ -58,4 +61,16 @@ func TestCache_SetCacheFailure(t *testing.T) {
 
 	err = cache.SetCache()
 	c.Equal(errUnexpectedStatusCodeInRelays, err)
+
+	mock.AddMockedResponseFromFile(http.MethodGet, fmt.Sprintf("%s%s", httpDBURL, appLimitsEndpoint),
+		http.StatusOK, "../samples/apps_limits.json")
+
+	mock.AddMockedResponseFromFile(http.MethodGet, fmt.Sprintf("%s%s", relayMeterURL, appRelayMeterEndpoint),
+		http.StatusOK, "../samples/apps_relays.json")
+
+	mock.AddMockedResponse(http.MethodPost, fmt.Sprintf("%s%s", httpDBURL, firstDateSurpassedEndpoint),
+		http.StatusInternalServerError, "not ok")
+
+	err = cache.SetCache()
+	c.Equal(errUnexpectedStatusCodeInDateSurpassed, err)
 }

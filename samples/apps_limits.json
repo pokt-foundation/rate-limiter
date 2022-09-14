@@ -21,6 +21,22 @@
     "appName": "Test App 456",
     "appUserID": "userid456",
     "planType": "free-plan",
+    "firstDateSurpassed": "2002-09-13T22:01:48.563976Z",
+    "notificationSettings": {
+      "signedUp": true,
+      "quarter": false,
+      "half": true,
+      "threeQuarters": false,
+      "full": true
+    }
+  },
+  {
+    "appID": "62c267ea67g6fhns53gdn2sa",
+    "publicKey": "4e28a9ccc2997538dadae2a9fe03de52e9b309b355e75b1f368062frsf4nscte",
+    "dailyLimit": 250000,
+    "appName": "Test App 456",
+    "appUserID": "userid456",
+    "planType": "free-plan",
     "notificationSettings": {
       "signedUp": true,
       "quarter": false,
