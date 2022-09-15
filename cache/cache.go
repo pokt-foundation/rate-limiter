@@ -16,8 +16,9 @@ import (
 )
 
 const (
-	appLimitsEndpoint     = "/application/limits"
-	appRelayMeterEndpoint = "/v0/relays/apps"
+	appLimitsEndpoint          = "/application/limits"
+	firstDateSurpassedEndpoint = "/application/first_date_surpassed"
+	appRelayMeterEndpoint      = "/v0/relays/apps"
 )
 
 var (
@@ -25,9 +26,11 @@ var (
 	httpDBURL     = environment.GetString("HTTP_DB_URL", "https://test-db.com")
 	relayMeterURL = environment.GetString("RELAY_METER_URL", "https://test-meter.com")
 	httpDBAPIKey  = environment.GetString("HTTP_DB_API_KEY", "")
+	gracePeriod   = time.Duration(environment.GetInt64("GRACE_PERIOD", 48)) * time.Hour
 
-	errUnexpectedStatusCodeInLimits = errors.New("unexpected status code in limits")
-	errUnexpectedStatusCodeInRelays = errors.New("unexpected status code in relays")
+	errUnexpectedStatusCodeInLimits        = errors.New("unexpected status code in limits")
+	errUnexpectedStatusCodeInRelays        = errors.New("unexpected status code in relays")
+	errUnexpectedStatusCodeInDateSurpassed = errors.New("unexpected status code in first date surpassed")
 
 	zeroTimeString = "T00:00:00Z"
 )
@@ -90,6 +93,31 @@ func (c *Cache) getAppLimits() (map[string]repository.AppLimits, error) {
 	return resp, nil
 }
 
+func (c *Cache) setFirstDateSurpassed(appIDs []string) error {
+	if len(appIDs) > 0 {
+		header := http.Header{}
+
+		header.Add("Authorization", httpDBAPIKey)
+
+		response, err := c.client.PostWithURLJSONParams(fmt.Sprintf("%s%s", httpDBURL, firstDateSurpassedEndpoint),
+			&repository.UpdateFirstDateSurpassed{
+				FirstDateSurpassed: time.Now(),
+				ApplicationIDs:     appIDs,
+			}, header)
+		if err != nil {
+			return err
+		}
+
+		defer response.Body.Close()
+
+		if response.StatusCode != http.StatusOK {
+			return errUnexpectedStatusCodeInDateSurpassed
+		}
+	}
+
+	return nil
+}
+
 type RelayCounts struct {
 	Success int64
 	Failure int64
@@ -136,6 +164,14 @@ func (c *Cache) getRelaysCount() ([]AppRelaysResponse, error) {
 	return appsRelays, nil
 }
 
+func passedLimit(count, dailyLimit int, firstSurpassedDate *time.Time) bool {
+	return count >= dailyLimit && firstSurpassedDate != nil && time.Since(*firstSurpassedDate) >= gracePeriod
+}
+
+func passedLimitForTheFirstTime(count, dailyLimit int, firstSurpassedDate *time.Time) bool {
+	return count >= dailyLimit && firstSurpassedDate == nil
+}
+
 func (c *Cache) SetCache() error {
 	appLimits, err := c.getAppLimits()
 	if err != nil {
@@ -148,6 +184,7 @@ func (c *Cache) SetCache() error {
 	}
 
 	var appIDsPassedLimit []string
+	var appIDsToAddFirstSurpassedDate []string
 
 	for _, relayCount := range relaysCount {
 		appLimit := appLimits[relayCount.Application]
@@ -156,9 +193,20 @@ func (c *Cache) SetCache() error {
 			continue
 		}
 
-		if relayCount.Count.Failure+relayCount.Count.Success >= int64(appLimit.DailyLimit) {
+		count := int(relayCount.Count.Success)
+
+		if passedLimit(count, appLimit.DailyLimit, appLimit.FirstDateSurpassed) {
 			appIDsPassedLimit = append(appIDsPassedLimit, appLimit.AppID)
 		}
+
+		if passedLimitForTheFirstTime(count, appLimit.DailyLimit, appLimit.FirstDateSurpassed) {
+			appIDsToAddFirstSurpassedDate = append(appIDsToAddFirstSurpassedDate, appLimit.AppID)
+		}
+	}
+
+	err = c.setFirstDateSurpassed(appIDsToAddFirstSurpassedDate)
+	if err != nil {
+		return err
 	}
 
 	c.mutex.Lock()
