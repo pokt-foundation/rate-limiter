@@ -1,15 +1,15 @@
-name: Production deployment us-west-2
+name: Staging deployment us-west-2
 
 on:
   workflow_run:
     workflows: ["Build & Test"]
-    branches: [main]
+    branches: [staging]
     types:
       - completed
 
 jobs:
   deploy:
-    name: Rate limiter
+    name: Rate Limiter Staging
     runs-on: ubuntu-latest
 
     steps:
@@ -31,7 +31,7 @@ jobs:
         id: build-image-rate-limiter
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: rate-limiter
+          ECR_REPOSITORY: rate-limiter-staging
           IMAGE_TAG: latest
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
@@ -42,8 +42,8 @@ jobs:
         id: task-def-us-west-2-rate-limiter
         uses: aws-actions/amazon-ecs-render-task-definition@master
         with:
-          task-definition: .aws/ecs-task-definition-production.json
-          container-name: rate-limiter
+          task-definition: .aws/ecs-task-definition-staging.json
+          container-name: rate-limiter-staging
           image: ${{ steps.build-image-rate-limiter.outputs.image }}
           environment-variables: |
             HTTP_DB_API_KEY=${{ secrets.HTTP_DB_API_KEY }}
@@ -60,6 +60,6 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-def-us-west-2-rate-limiter.outputs.task-definition }}
-          service: rate-limiter
+          service: rate-limiter-staging
           cluster: rate-limiter
           wait-for-service-stability: true
