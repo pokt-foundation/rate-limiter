@@ -46,9 +46,9 @@ jobs:
           container-name: rate-limiter-staging
           image: ${{ steps.build-image-rate-limiter.outputs.image }}
           environment-variables: |
-            HTTP_DB_API_KEY=${{ secrets.HTTP_DB_API_KEY }}
-            HTTP_DB_URL=${{ secrets.HTTP_DB_URL }}
-            RELAY_METER_URL=${{ secrets.RELAY_METER_URL }}
+            HTTP_DB_API_KEY=${{ secrets.STAGING_HTTP_DB_API_KEY }}
+            HTTP_DB_URL=${{ secrets.STAGING_HTTP_DB_URL }}
+            RELAY_METER_URL=${{ secrets.STAGING_RELAY_METER_URL }}
             HTTP_RETRIES=${{ secrets.HTTP_RETRIES }}
             HTTP_TIMEOUT=${{ secrets.HTTP_TIMEOUT }}
             PORT=${{ secrets.PORT }}
