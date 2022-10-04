@@ -1,8 +1,11 @@
 name: Production deployment us-west-2
 
 on:
-  push:
+  workflow_run:
+    workflows: ["Build & Test"]
     branches: [master]
+    types:
+      - completed
 
 jobs:
   deploy:
@@ -52,7 +55,7 @@ jobs:
             CACHE_REFRESH=${{ secrets.CACHE_REFRESH }}
             API_KEYS=${{ secrets.API_KEYS }}
             GRACE_PERIOD=${{ secrets.GRACE_PERIOD }}
-            
+
       - name: Deploy / us-west-2
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
