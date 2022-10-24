@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"sync"
@@ -78,7 +78,7 @@ func (c *Cache) getAppLimits() (map[string]repository.AppLimits, error) {
 		return nil, errUnexpectedStatusCodeInLimits
 	}
 
-	bodyBytes, err := ioutil.ReadAll(response.Body)
+	bodyBytes, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +157,7 @@ func (c *Cache) getRelaysCount() ([]AppRelaysResponse, error) {
 		return nil, errUnexpectedStatusCodeInRelays
 	}
 
-	bodyBytes, err := ioutil.ReadAll(response.Body)
+	bodyBytes, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -184,12 +184,12 @@ func (c *Cache) SetCache() error {
 
 	appLimits, err := c.getAppLimits()
 	if err != nil {
-		return err
+		return fmt.Errorf("err in getAppLimits: %w", err)
 	}
 
 	relaysCount, err := c.getRelaysCount()
 	if err != nil {
-		return err
+		return fmt.Errorf("err in getRelaysCount: %w", err)
 	}
 
 	var appIDsPassedLimit []string
@@ -226,7 +226,7 @@ func (c *Cache) SetCache() error {
 
 	err = c.setFirstDateSurpassed(appIDsToAddFirstSurpassedDate)
 	if err != nil {
-		return err
+		return fmt.Errorf("err in setFirstDateSurpassed: %w", err)
 	}
 
 	c.mutex.Lock()
