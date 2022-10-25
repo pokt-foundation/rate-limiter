@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"sync"
@@ -13,6 +13,7 @@ import (
 	"github.com/pokt-foundation/portal-api-go/repository"
 	"github.com/pokt-foundation/utils-go/client"
 	"github.com/pokt-foundation/utils-go/environment"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -33,12 +34,19 @@ var (
 	errUnexpectedStatusCodeInDateSurpassed = errors.New("unexpected status code in first date surpassed")
 
 	zeroTimeString = "T00:00:00Z"
+
+	log = logrus.New()
 )
 
 type Cache struct {
 	client            *client.Client
 	mutex             sync.Mutex
 	appIDsPassedLimit []string
+}
+
+func init() {
+	// log as JSON instead of the default ASCII formatter.
+	log.SetFormatter(&logrus.JSONFormatter{})
 }
 
 func NewCache(client *client.Client) *Cache {
@@ -70,7 +78,7 @@ func (c *Cache) getAppLimits() (map[string]repository.AppLimits, error) {
 		return nil, errUnexpectedStatusCodeInLimits
 	}
 
-	bodyBytes, err := ioutil.ReadAll(response.Body)
+	bodyBytes, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -149,7 +157,7 @@ func (c *Cache) getRelaysCount() ([]AppRelaysResponse, error) {
 		return nil, errUnexpectedStatusCodeInRelays
 	}
 
-	bodyBytes, err := ioutil.ReadAll(response.Body)
+	bodyBytes, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -173,14 +181,15 @@ func passedLimitForTheFirstTime(count, dailyLimit int, firstSurpassedDate *time.
 }
 
 func (c *Cache) SetCache() error {
+
 	appLimits, err := c.getAppLimits()
 	if err != nil {
-		return err
+		return fmt.Errorf("err in getAppLimits: %w", err)
 	}
 
 	relaysCount, err := c.getRelaysCount()
 	if err != nil {
-		return err
+		return fmt.Errorf("err in getRelaysCount: %w", err)
 	}
 
 	var appIDsPassedLimit []string
@@ -195,18 +204,29 @@ func (c *Cache) SetCache() error {
 
 		count := int(relayCount.Count.Success)
 
+		fields := logrus.Fields{
+			"daily_app_limit":      appLimit.DailyLimit,
+			"app_id":               appLimit.AppID,
+			"count":                count,
+			"first_date_surpassed": appLimit.FirstDateSurpassed,
+		}
+
 		if passedLimit(count, appLimit.DailyLimit, appLimit.FirstDateSurpassed) {
+			log.WithFields(fields).Info(fmt.Sprintf("app: %s passed his daily limit with %d of %d", appLimit.AppID, count, appLimit.DailyLimit))
 			appIDsPassedLimit = append(appIDsPassedLimit, appLimit.AppID)
 		}
 
 		if passedLimitForTheFirstTime(count, appLimit.DailyLimit, appLimit.FirstDateSurpassed) {
+			fields["first_date_surpassed"] = time.Now()
+			log.WithFields(fields).Info(fmt.Sprintf("app: %s passed his first daily limit at: %s", appLimit.AppID, time.Now().Format("2006-01-02T15:04:05")))
+
 			appIDsToAddFirstSurpassedDate = append(appIDsToAddFirstSurpassedDate, appLimit.AppID)
 		}
 	}
 
 	err = c.setFirstDateSurpassed(appIDsToAddFirstSurpassedDate)
 	if err != nil {
-		return err
+		return fmt.Errorf("err in setFirstDateSurpassed: %w", err)
 	}
 
 	c.mutex.Lock()

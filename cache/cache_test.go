@@ -51,7 +51,7 @@ func TestCache_SetCacheFailure(t *testing.T) {
 		http.StatusInternalServerError, "../samples/apps_limits.json")
 
 	err := cache.SetCache()
-	c.Equal(errUnexpectedStatusCodeInLimits, err)
+	c.ErrorIs(err, errUnexpectedStatusCodeInLimits)
 
 	mock.AddMockedResponseFromFile(http.MethodGet, fmt.Sprintf("%s%s", httpDBURL, appLimitsEndpoint),
 		http.StatusOK, "../samples/apps_limits.json")
@@ -60,7 +60,7 @@ func TestCache_SetCacheFailure(t *testing.T) {
 		http.StatusInternalServerError, "../samples/apps_relays.json")
 
 	err = cache.SetCache()
-	c.Equal(errUnexpectedStatusCodeInRelays, err)
+	c.ErrorIs(err, errUnexpectedStatusCodeInRelays)
 
 	mock.AddMockedResponseFromFile(http.MethodGet, fmt.Sprintf("%s%s", httpDBURL, appLimitsEndpoint),
 		http.StatusOK, "../samples/apps_limits.json")
@@ -72,5 +72,5 @@ func TestCache_SetCacheFailure(t *testing.T) {
 		http.StatusInternalServerError, "not ok")
 
 	err = cache.SetCache()
-	c.Equal(errUnexpectedStatusCodeInDateSurpassed, err)
+	c.ErrorIs(err, errUnexpectedStatusCodeInDateSurpassed)
 }
