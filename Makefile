@@ -1,3 +1,15 @@
+test:
+	go test ./... 
+
+test_unit:
+	go test ./... -short
+
+test_integration:
+	go test ./... -run Integration
+
+test_verbose:
+	go test ./... -v
+
 init-pre-commit:
 	wget https://github.com/pre-commit/pre-commit/releases/download/v2.20.0/pre-commit-2.20.0.pyz;
 	python3 pre-commit-2.20.0.pyz install;
