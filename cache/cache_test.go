@@ -18,11 +18,11 @@ func TestCache_SetCache(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	mock.AddMockedResponseFromFile(http.MethodGet, fmt.Sprintf("%s%s", httpDBURL, appLimitsEndpoint),
-		http.StatusOK, "../samples/apps_limits.json")
+	mock.AddMockedResponseFromFile(http.MethodGet, fmt.Sprintf("%s%s", httpDBURL, appsEndpoint),
+		http.StatusOK, "../testdata/apps.json")
 
 	mock.AddMockedResponseFromFile(http.MethodGet, fmt.Sprintf("%s%s", relayMeterURL, appRelayMeterEndpoint),
-		http.StatusOK, "../samples/apps_relays.json")
+		http.StatusOK, "../testdata/apps_relays.json")
 
 	mock.AddMockedResponse(http.MethodPost, fmt.Sprintf("%s%s", httpDBURL, firstDateSurpassedEndpoint),
 		http.StatusOK, "ok")
@@ -34,7 +34,7 @@ func TestCache_SetCache(t *testing.T) {
 	err := cache.SetCache()
 	c.NoError(err)
 
-	c.Equal([]string{"62c267ea67g6fhns53gdn2sg"}, cache.GetAppIDsPassedLimit())
+	c.Equal([]string{"test_id_803b3f0e5430b17d"}, cache.GetAppIDsPassedLimit())
 }
 
 func TestCache_SetCacheFailure(t *testing.T) {
@@ -47,26 +47,26 @@ func TestCache_SetCacheFailure(t *testing.T) {
 
 	cache := NewCache(client)
 
-	mock.AddMockedResponseFromFile(http.MethodGet, fmt.Sprintf("%s%s", httpDBURL, appLimitsEndpoint),
-		http.StatusInternalServerError, "../samples/apps_limits.json")
+	mock.AddMockedResponseFromFile(http.MethodGet, fmt.Sprintf("%s%s", httpDBURL, appsEndpoint),
+		http.StatusInternalServerError, "../testdata/apps.json")
 
 	err := cache.SetCache()
 	c.ErrorIs(err, errUnexpectedStatusCodeInLimits)
 
-	mock.AddMockedResponseFromFile(http.MethodGet, fmt.Sprintf("%s%s", httpDBURL, appLimitsEndpoint),
-		http.StatusOK, "../samples/apps_limits.json")
+	mock.AddMockedResponseFromFile(http.MethodGet, fmt.Sprintf("%s%s", httpDBURL, appsEndpoint),
+		http.StatusOK, "../testdata/apps.json")
 
 	mock.AddMockedResponseFromFile(http.MethodGet, fmt.Sprintf("%s%s", relayMeterURL, appRelayMeterEndpoint),
-		http.StatusInternalServerError, "../samples/apps_relays.json")
+		http.StatusInternalServerError, "../testdata/apps_relays.json")
 
 	err = cache.SetCache()
 	c.ErrorIs(err, errUnexpectedStatusCodeInRelays)
 
-	mock.AddMockedResponseFromFile(http.MethodGet, fmt.Sprintf("%s%s", httpDBURL, appLimitsEndpoint),
-		http.StatusOK, "../samples/apps_limits.json")
+	mock.AddMockedResponseFromFile(http.MethodGet, fmt.Sprintf("%s%s", httpDBURL, appsEndpoint),
+		http.StatusOK, "../testdata/apps.json")
 
 	mock.AddMockedResponseFromFile(http.MethodGet, fmt.Sprintf("%s%s", relayMeterURL, appRelayMeterEndpoint),
-		http.StatusOK, "../samples/apps_relays.json")
+		http.StatusOK, "../testdata/apps_relays.json")
 
 	mock.AddMockedResponse(http.MethodPost, fmt.Sprintf("%s%s", httpDBURL, firstDateSurpassedEndpoint),
 		http.StatusInternalServerError, "not ok")

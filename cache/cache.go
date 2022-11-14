@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	appLimitsEndpoint          = "/application/limits"
+	appsEndpoint               = "/application"
 	firstDateSurpassedEndpoint = "/application/first_date_surpassed"
 	appRelayMeterEndpoint      = "/v0/relays/apps"
 )
@@ -62,12 +62,12 @@ func (c *Cache) GetAppIDsPassedLimit() []string {
 	return c.appIDsPassedLimit
 }
 
-func (c *Cache) getAppLimits() (map[string]repository.AppLimits, error) {
+func (c *Cache) getAppLimits() (map[string]repository.Application, error) {
 	header := http.Header{}
 
 	header.Add("Authorization", httpDBAPIKey)
 
-	response, err := c.client.GetWithURLAndParams(fmt.Sprintf("%s%s", httpDBURL, appLimitsEndpoint), nil, header)
+	response, err := c.client.GetWithURLAndParams(fmt.Sprintf("%s%s", httpDBURL, appsEndpoint), nil, header)
 	if err != nil {
 		return nil, err
 	}
@@ -83,18 +83,18 @@ func (c *Cache) getAppLimits() (map[string]repository.AppLimits, error) {
 		return nil, err
 	}
 
-	appsLimits := []repository.AppLimits{}
+	applications := []repository.Application{}
 
-	err = json.Unmarshal(bodyBytes, &appsLimits)
+	err = json.Unmarshal(bodyBytes, &applications)
 	if err != nil {
 		return nil, err
 	}
 
-	resp := make(map[string]repository.AppLimits, len(appsLimits))
+	resp := make(map[string]repository.Application, len(applications))
 
-	for _, appLimit := range appsLimits {
-		if appLimit.PublicKey != "" {
-			resp[appLimit.PublicKey] = appLimit
+	for _, app := range applications {
+		if app.GatewayAAT.ApplicationPublicKey != "" {
+			resp[app.GatewayAAT.ApplicationPublicKey] = app
 		}
 	}
 
@@ -107,11 +107,14 @@ func (c *Cache) setFirstDateSurpassed(appIDs []string) error {
 
 		header.Add("Authorization", httpDBAPIKey)
 
-		response, err := c.client.PostWithURLJSONParams(fmt.Sprintf("%s%s", httpDBURL, firstDateSurpassedEndpoint),
+		response, err := c.client.PostWithURLJSONParams(
+			fmt.Sprintf("%s%s", httpDBURL, firstDateSurpassedEndpoint),
 			&repository.UpdateFirstDateSurpassed{
 				FirstDateSurpassed: time.Now(),
 				ApplicationIDs:     appIDs,
-			}, header)
+			},
+			header,
+		)
 		if err != nil {
 			return err
 		}
@@ -172,17 +175,16 @@ func (c *Cache) getRelaysCount() ([]AppRelaysResponse, error) {
 	return appsRelays, nil
 }
 
-func passedLimit(count, dailyLimit int, firstSurpassedDate *time.Time) bool {
-	return count >= dailyLimit && firstSurpassedDate != nil && time.Since(*firstSurpassedDate) >= gracePeriod
+func passedLimit(count, dailyLimit int, firstSurpassedDate time.Time) bool {
+	return count >= dailyLimit && !firstSurpassedDate.IsZero() && time.Since(firstSurpassedDate) >= gracePeriod
 }
 
-func passedLimitForTheFirstTime(count, dailyLimit int, firstSurpassedDate *time.Time) bool {
-	return count >= dailyLimit && firstSurpassedDate == nil
+func passedLimitForTheFirstTime(count, dailyLimit int, firstSurpassedDate time.Time) bool {
+	return count >= dailyLimit && firstSurpassedDate.IsZero()
 }
 
 func (c *Cache) SetCache() error {
-
-	appLimits, err := c.getAppLimits()
+	applications, err := c.getAppLimits()
 	if err != nil {
 		return fmt.Errorf("err in getAppLimits: %w", err)
 	}
@@ -196,32 +198,33 @@ func (c *Cache) SetCache() error {
 	var appIDsToAddFirstSurpassedDate []string
 
 	for _, relayCount := range relaysCount {
-		appLimit := appLimits[relayCount.Application]
+		app := applications[relayCount.Application]
 
-		if appLimit.DailyLimit == 0 {
+		if app.DailyLimit() == 0 {
 			continue
 		}
 
 		count := int(relayCount.Count.Success)
 
 		fields := logrus.Fields{
-			"daily_app_limit":      appLimit.DailyLimit,
-			"app_id":               appLimit.AppID,
+			"daily_app_limit":      app.DailyLimit(),
+			"app_id":               app.ID,
 			"count":                count,
-			"first_date_surpassed": appLimit.FirstDateSurpassed,
+			"first_date_surpassed": app.FirstDateSurpassed,
 		}
 
-		if passedLimit(count, appLimit.DailyLimit, appLimit.FirstDateSurpassed) {
-			log.WithFields(fields).Info(fmt.Sprintf("app: %s passed his daily limit with %d of %d", appLimit.AppID, count, appLimit.DailyLimit))
-			appIDsPassedLimit = append(appIDsPassedLimit, appLimit.AppID)
+		if passedLimit(count, app.DailyLimit(), app.FirstDateSurpassed) {
+			log.WithFields(fields).Info(fmt.Sprintf("app: %s passed daily limit with %d of %d", app.ID, count, app.DailyLimit()))
+			appIDsPassedLimit = append(appIDsPassedLimit, app.ID)
 		}
 
-		if passedLimitForTheFirstTime(count, appLimit.DailyLimit, appLimit.FirstDateSurpassed) {
+		if passedLimitForTheFirstTime(count, app.DailyLimit(), app.FirstDateSurpassed) {
 			fields["first_date_surpassed"] = time.Now()
-			log.WithFields(fields).Info(fmt.Sprintf("app: %s passed his first daily limit at: %s", appLimit.AppID, time.Now().Format("2006-01-02T15:04:05")))
+			log.WithFields(fields).Info(fmt.Sprintf("app: %s passed first daily limit at: %s", app.ID, time.Now().Format("2006-01-02T15:04:05")))
 
-			appIDsToAddFirstSurpassedDate = append(appIDsToAddFirstSurpassedDate, appLimit.AppID)
+			appIDsToAddFirstSurpassedDate = append(appIDsToAddFirstSurpassedDate, app.ID)
 		}
+
 	}
 
 	err = c.setFirstDateSurpassed(appIDsToAddFirstSurpassedDate)
