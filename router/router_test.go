@@ -17,11 +17,11 @@ func newTestRouter() (*Router, error) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	mock.AddMockedResponseFromFile(http.MethodGet, "https://test-db.com/application/limits",
-		http.StatusOK, "../samples/apps_limits.json")
+	mock.AddMockedResponseFromFile(http.MethodGet, "https://test-db.com/application",
+		http.StatusOK, "../testdata/apps.json")
 
 	mock.AddMockedResponseFromFile(http.MethodGet, "https://test-meter.com/v0/relays/apps",
-		http.StatusOK, "../samples/apps_relays.json")
+		http.StatusOK, "../testdata/apps_relays.json")
 
 	mock.AddMockedResponse(http.MethodPost, "https://test-db.com/application/first_date_surpassed",
 		http.StatusOK, "ok")
@@ -61,7 +61,7 @@ func TestRouter_GetAppIDs(t *testing.T) {
 	c.Equal(http.StatusOK, rr.Code)
 
 	expectedBody, err := json.Marshal(getAppIDsOutput{
-		ApplicationIDs: []string{"62c267ea67g6fhns53gdn2sg"},
+		ApplicationIDs: []string{"test_id_803b3f0e5430b17d"},
 	})
 	c.NoError(err)
 
