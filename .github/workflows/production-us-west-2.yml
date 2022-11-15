@@ -55,6 +55,16 @@ jobs:
             CACHE_REFRESH=${{ secrets.CACHE_REFRESH }}
             API_KEYS=${{ secrets.API_KEYS }}
             GRACE_PERIOD=${{ secrets.GRACE_PERIOD }}
+            LOG_TO_DATADOG=true
+            DATADOG_API_KEY=${{ secrets.DATADOG_API_KEY }}
+            REGION=us-west-2
+            REGION_NAME=us-west-2
+            DD_RUNTIME_METRICS_ENABLED=true
+            DD_PROFILING_ENABLED=true
+            DD_SERVICE=/us-west-2/ecs/rate-limiter
+            DD_VERSION=${{ github.sha }}
+            DD_ENV=production
+            DD_AGENT_HOST=datadog-agent
 
       - name: Fill in the new image ID / us-west-2 (Datadog Agent)
         id: task-def-us-west-2-datadog-agent
