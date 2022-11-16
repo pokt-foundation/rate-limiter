@@ -12,40 +12,45 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	retries      = environment.GetInt64("HTTP_RETRIES", 0)
-	timeout      = environment.GetInt64("HTTP_TIMEOUT", 5)
-	port         = environment.GetString("PORT", "8080")
-	cacheRefresh = environment.GetInt64("CACHE_REFRESH", 10)
+const (
+	cacheRefresh = "CACHE_REFRESH"
+	httpTimeout  = "HTTP_TIMEOUT"
+	httpRetries  = "HTTP_RETRIES"
+	port         = "PORT"
 
-	log = logrus.New()
+	defaultCacheRefreshMinutes = 10
+	defaultHTTPTimeoutSeconds  = 5
+	defaultHTTPRetries         = 0
+	defaultPort                = "8080"
 )
 
-func init() {
-	// log as JSON instead of the default ASCII formatter.
-	log.SetFormatter(&logrus.JSONFormatter{})
+type options struct {
+	cacheRefresh, timeout time.Duration
+	retries               int
+	port                  string
 }
 
-func logError(msg string, err error) {
-	fields := logrus.Fields{
-		"err": err.Error(),
+func gatherOptions() options {
+	return options{
+		cacheRefresh: time.Duration(environment.GetInt64(cacheRefresh, defaultCacheRefreshMinutes)) * time.Minute,
+		timeout:      time.Duration(environment.GetInt64(httpTimeout, defaultHTTPTimeoutSeconds)) * time.Second,
+		retries:      int(environment.GetInt64(httpRetries, defaultHTTPRetries)),
+		port:         environment.GetString(port, defaultPort),
 	}
-
-	log.WithFields(fields).Error(fmt.Sprintf("%s with error: %s", msg, err.Error()))
 }
 
-func cacheHandler(router *router.Router) {
+func cacheHandler(router *router.Router, cacheRefresh time.Duration, log *logrus.Logger) {
 	for {
 		time.Sleep(time.Duration(cacheRefresh) * time.Minute)
 
 		err := router.Cache.SetCache()
 		if err != nil {
-			logError("Cache refresh failed", err)
+			log.Error(fmt.Sprintf("Cache refresh failed with error: %s", err.Error()))
 		}
 	}
 }
 
-func httpHandler(router *router.Router) {
+func httpHandler(router *router.Router, port string, log *logrus.Logger) {
 	http.Handle("/", router.Router)
 
 	log.Printf("Rate Limiter running in port: %s\n", port)
@@ -53,11 +58,17 @@ func httpHandler(router *router.Router) {
 }
 
 func main() {
-	client := client.NewCustomClient(int(retries), time.Duration(timeout)*time.Second)
+	log := logrus.New()
+	// log as JSON instead of the default ASCII formatter.
+	log.SetFormatter(&logrus.JSONFormatter{})
+
+	options := gatherOptions()
+
+	client := client.NewCustomClient(options.retries, options.timeout)
 
 	router, err := router.NewRouter(client)
 	if err != nil {
-		logError("Create router failed", err)
+		log.Error(fmt.Sprintf("Create router failed with error: %s", err.Error()))
 
 		panic(err)
 	}
@@ -65,8 +76,8 @@ func main() {
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	go httpHandler(router)
-	go cacheHandler(router)
+	go httpHandler(router, options.port, log)
+	go cacheHandler(router, options.cacheRefresh, log)
 
 	wg.Wait()
 }
