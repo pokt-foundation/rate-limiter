@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pokt-foundation/portal-api-go/repository"
+	"github.com/pokt-foundation/portal-db/types"
 	"github.com/pokt-foundation/utils-go/client"
 	"github.com/pokt-foundation/utils-go/environment"
 	"github.com/sirupsen/logrus"
@@ -62,7 +62,7 @@ func (c *Cache) GetAppIDsPassedLimit() []string {
 	return c.appIDsPassedLimit
 }
 
-func (c *Cache) getAppLimits() (map[string]repository.Application, error) {
+func (c *Cache) getAppLimits() (map[string]types.Application, error) {
 	header := http.Header{}
 
 	header.Add("Authorization", httpDBAPIKey)
@@ -83,14 +83,14 @@ func (c *Cache) getAppLimits() (map[string]repository.Application, error) {
 		return nil, err
 	}
 
-	applications := []repository.Application{}
+	applications := []types.Application{}
 
 	err = json.Unmarshal(bodyBytes, &applications)
 	if err != nil {
 		return nil, err
 	}
 
-	resp := make(map[string]repository.Application, len(applications))
+	resp := make(map[string]types.Application, len(applications))
 
 	for _, app := range applications {
 		if app.GatewayAAT.ApplicationPublicKey != "" {
@@ -109,7 +109,7 @@ func (c *Cache) setFirstDateSurpassed(appIDs []string) error {
 
 		response, err := c.client.PostWithURLJSONParams(
 			fmt.Sprintf("%s%s", httpDBURL, firstDateSurpassedEndpoint),
-			&repository.UpdateFirstDateSurpassed{
+			&types.UpdateFirstDateSurpassed{
 				FirstDateSurpassed: time.Now(),
 				ApplicationIDs:     appIDs,
 			},
