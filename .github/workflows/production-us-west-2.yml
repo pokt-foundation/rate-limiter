@@ -48,6 +48,7 @@ jobs:
           environment-variables: |
             HTTP_DB_API_KEY=${{ secrets.HTTP_DB_API_KEY }}
             HTTP_DB_URL=${{ secrets.HTTP_DB_URL }}
+            RELAY_METER_API_KEY=${{ secrets.RELAY_METER_API_KEY }}
             RELAY_METER_URL=${{ secrets.RELAY_METER_URL }}
             HTTP_RETRIES=${{ secrets.HTTP_RETRIES }}
             HTTP_TIMEOUT=${{ secrets.HTTP_TIMEOUT }}
