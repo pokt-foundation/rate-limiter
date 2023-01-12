@@ -24,10 +24,11 @@ const (
 
 var (
 	// url default values needed for unit testing
-	httpDBURL     = environment.GetString("HTTP_DB_URL", "https://test-db.com")
-	relayMeterURL = environment.GetString("RELAY_METER_URL", "https://test-meter.com")
-	httpDBAPIKey  = environment.GetString("HTTP_DB_API_KEY", "")
-	gracePeriod   = time.Duration(environment.GetInt64("GRACE_PERIOD", 48)) * time.Hour
+	httpDBURL        = environment.GetString("HTTP_DB_URL", "https://test-db.com")
+	relayMeterURL    = environment.GetString("RELAY_METER_URL", "https://test-meter.com")
+	httpDBAPIKey     = environment.GetString("HTTP_DB_API_KEY", "")
+	relayMeterAPIKey = environment.GetString("RELAY_METER_API_KEY", "")
+	gracePeriod      = time.Duration(environment.GetInt64("GRACE_PERIOD", 48)) * time.Hour
 
 	errUnexpectedStatusCodeInLimits        = errors.New("unexpected status code in limits")
 	errUnexpectedStatusCodeInRelays        = errors.New("unexpected status code in relays")
@@ -149,7 +150,11 @@ func (c *Cache) getRelaysCount() ([]AppRelaysResponse, error) {
 	params.Set("from", todayZeroDate)
 	params.Set("to", todayZeroDate)
 
-	response, err := c.client.GetWithURLAndParams(fmt.Sprintf("%s%s", relayMeterURL, appRelayMeterEndpoint), params, http.Header{})
+	header := http.Header{}
+
+	header.Add("Authorization", relayMeterAPIKey)
+
+	response, err := c.client.GetWithURLAndParams(fmt.Sprintf("%s%s", relayMeterURL, appRelayMeterEndpoint), params, header)
 	if err != nil {
 		return nil, err
 	}
